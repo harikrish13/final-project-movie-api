@@ -5,11 +5,69 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
+
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  USER_ID      Int       @id @default(autoincrement()) @map("USER_ID")
+  UserName     String    @map("UserName")
+  Email        String    @unique @map("Email")
+  Password_hash String   @map("Password_hash")
+  Role         String    @map("Role")
+  Created_at   DateTime  @default(now()) @map("Created_at")
+  Reviews      Review[]
+
+  @@map("User")
+}
+
+model Review {
+  Id          Int      @id @default(autoincrement())
+  User_ID     Int      @map("User_ID")
+  Movie_ID    Int      @map("Movie_ID")
+  Ratings     Float?   @map("Ratings")
+  Title       String?  @map("Title")
+  Content     String?  @map("Content")
+  Created_at  DateTime @default(now()) @map("Created_at")
+  Updated_at  DateTime @updatedAt @map("Updated_at")
+  User        User     @relation(fields: [User_ID], references: [USER_ID], onDelete: Cascade)
+  Movie       Movie    @relation(fields: [Movie_ID], references: [Id], onDelete: Cascade)
+
+  @@map("Reviews")
+}
+
+model Movie {
+  Id          Int           @id @default(autoincrement())
+  Title       String        @map("Title")
+  Description String?       @map("Description")
+  Release_date DateTime?    @map("Release_date")
+  Director    String?       @map("Director")
+  Reviews     Review[]
+  MovieGenres MovieGenre[]
+
+  @@map("Movies")
+}
+
+model Genre {
+  Id          Int           @id @default(autoincrement())
+  Name        String        @unique @map("Name")
+  MovieGenres MovieGenre[]
+
+  @@map("Genres")
+}
+
+model MovieGenre {
+  Movie_ID  Int    @map("Movie_ID")
+  Genre_ID  Int    @map("Genre_ID")
+  Movie     Movie  @relation(fields: [Movie_ID], references: [Id], onDelete: Cascade)
+  Genre     Genre  @relation(fields: [Genre_ID], references: [Id], onDelete: Cascade)
+
+  @@id([Movie_ID, Genre_ID])
+  @@map("MovieGenres")
 }
