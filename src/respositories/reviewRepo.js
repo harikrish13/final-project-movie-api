@@ -1,5 +1,4 @@
 import prisma from '../config/db.js';
-
 export async function findAllReviews(filters = {}) {
   const { page = 1, limit = 10, movieId, userId } = filters;
   const skip = (page - 1) * limit;
