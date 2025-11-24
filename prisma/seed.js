@@ -7,41 +7,63 @@ const passwordHash = await bcrypt.hash(password, 10);
 try {
   console.log('Starting seed...');
 
-  // Clear existing data (optional - uncomment if you want to reset)
-  // await prisma.movieGenre.deleteMany();
-  // await prisma.review.deleteMany();
-  // await prisma.movie.deleteMany();
-  // await prisma.genre.deleteMany();
-  // await prisma.user.deleteMany();
+  // Clear dependent data first (reviews and movie genres depend on users/movies)
+  await prisma.movieGenre.deleteMany();
+  await prisma.review.deleteMany();
+  await prisma.movie.deleteMany();
 
-  // Insert Users
+  // Upsert Users (using upsert to handle existing users)
   const users = await Promise.all([
-    prisma.user.create({
-      data: {
+    prisma.user.upsert({
+      where: { Email: 'admin@movieapi.com' },
+      update: {
+        UserName: 'admin',
+        Password_hash: passwordHash,
+        Role: 'admin',
+      },
+      create: {
         UserName: 'admin',
         Email: 'admin@movieapi.com',
         Password_hash: passwordHash,
         Role: 'admin',
       },
     }),
-    prisma.user.create({
-      data: {
+    prisma.user.upsert({
+      where: { Email: 'john@example.com' },
+      update: {
+        UserName: 'john_doe',
+        Password_hash: passwordHash,
+        Role: 'user',
+      },
+      create: {
         UserName: 'john_doe',
         Email: 'john@example.com',
         Password_hash: passwordHash,
         Role: 'user',
       },
     }),
-    prisma.user.create({
-      data: {
+    prisma.user.upsert({
+      where: { Email: 'jane@example.com' },
+      update: {
+        UserName: 'jane_smith',
+        Password_hash: passwordHash,
+        Role: 'user',
+      },
+      create: {
         UserName: 'jane_smith',
         Email: 'jane@example.com',
         Password_hash: passwordHash,
         Role: 'user',
       },
     }),
-    prisma.user.create({
-      data: {
+    prisma.user.upsert({
+      where: { Email: 'bob@example.com' },
+      update: {
+        UserName: 'bob_wilson',
+        Password_hash: passwordHash,
+        Role: 'user',
+      },
+      create: {
         UserName: 'bob_wilson',
         Email: 'bob@example.com',
         Password_hash: passwordHash,
@@ -52,18 +74,58 @@ try {
 
   console.log(`Created ${users.length} users`);
 
-  // Insert Genres
+  // Upsert Genres (using upsert to handle existing genres)
   const genres = await Promise.all([
-    prisma.genre.create({ data: { Name: 'Action' } }),
-    prisma.genre.create({ data: { Name: 'Comedy' } }),
-    prisma.genre.create({ data: { Name: 'Drama' } }),
-    prisma.genre.create({ data: { Name: 'Thriller' } }),
-    prisma.genre.create({ data: { Name: 'Sci-Fi' } }),
-    prisma.genre.create({ data: { Name: 'Horror' } }),
-    prisma.genre.create({ data: { Name: 'Romance' } }),
-    prisma.genre.create({ data: { Name: 'Adventure' } }),
-    prisma.genre.create({ data: { Name: 'Fantasy' } }),
-    prisma.genre.create({ data: { Name: 'Crime' } }),
+    prisma.genre.upsert({
+      where: { Name: 'Action' },
+      update: {},
+      create: { Name: 'Action' },
+    }),
+    prisma.genre.upsert({
+      where: { Name: 'Comedy' },
+      update: {},
+      create: { Name: 'Comedy' },
+    }),
+    prisma.genre.upsert({
+      where: { Name: 'Drama' },
+      update: {},
+      create: { Name: 'Drama' },
+    }),
+    prisma.genre.upsert({
+      where: { Name: 'Thriller' },
+      update: {},
+      create: { Name: 'Thriller' },
+    }),
+    prisma.genre.upsert({
+      where: { Name: 'Sci-Fi' },
+      update: {},
+      create: { Name: 'Sci-Fi' },
+    }),
+    prisma.genre.upsert({
+      where: { Name: 'Horror' },
+      update: {},
+      create: { Name: 'Horror' },
+    }),
+    prisma.genre.upsert({
+      where: { Name: 'Romance' },
+      update: {},
+      create: { Name: 'Romance' },
+    }),
+    prisma.genre.upsert({
+      where: { Name: 'Adventure' },
+      update: {},
+      create: { Name: 'Adventure' },
+    }),
+    prisma.genre.upsert({
+      where: { Name: 'Fantasy' },
+      update: {},
+      create: { Name: 'Fantasy' },
+    }),
+    prisma.genre.upsert({
+      where: { Name: 'Crime' },
+      update: {},
+      create: { Name: 'Crime' },
+    }),
   ]);
 
   console.log(`Created ${genres.length} genres`);
