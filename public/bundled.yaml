@@ -6,7 +6,7 @@ info:
 servers:
   - url: http://localhost:8080
     description: Local development server
-  - url: https://your-production-url.com
+  - url: https://final-project-movie-api.onrender.com
     description: Production server
 tags:
   - name: Authentication
