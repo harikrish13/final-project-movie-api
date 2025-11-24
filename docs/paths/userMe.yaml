@@ -1,0 +1,105 @@
+get:
+  summary: Get current user profile
+  description: |
+    Get the authenticated user's profile information.
+    
+    **Authentication:** Bearer token (JWT) required
+    **Authorization:** Any authenticated user
+  tags:
+    - Users
+  security:
+    - bearerAuth: []
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/User.yaml
+          example:
+            USER_ID: 2
+            UserName: john_doe
+            Email: john@example.com
+            Role: user
+            Created_at: "2024-01-15T10:30:00.000Z"
+    '401':
+      $ref: ../components/responses/Unauthorized.yaml
+put:
+  summary: Update current user profile
+  description: |
+    Update the authenticated user's profile. At least one field (userName, email, or password) must be provided.
+    
+    **Authentication:** Bearer token (JWT) required
+    **Authorization:** Any authenticated user (can only update their own profile)
+  tags:
+    - Users
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            userName:
+              type: string
+              example: updated_username
+            email:
+              type: string
+              format: email
+              example: updated@example.com
+            password:
+              type: string
+              format: password
+              minLength: 8
+              example: newpassword123
+        example:
+          userName: john_doe_updated
+          email: john.updated@example.com
+  responses:
+    '200':
+      description: User updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/User.yaml
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '401':
+      $ref: ../components/responses/Unauthorized.yaml
+    '409':
+      description: Conflict - Email already exists
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Email is not unique
+delete:
+  summary: Delete current user account
+  description: |
+    Delete the authenticated user's account.
+    
+    **Authentication:** Bearer token (JWT) required
+    **Authorization:** Any authenticated user (can only delete their own account)
+  tags:
+    - Users
+  security:
+    - bearerAuth: []
+  responses:
+    '200':
+      description: User deleted successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: User deleted successfully
+    '401':
+      $ref: ../components/responses/Unauthorized.yaml
+

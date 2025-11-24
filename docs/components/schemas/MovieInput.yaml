@@ -1,0 +1,27 @@
+type: object
+properties:
+  title:
+    type: string
+    description: The title of the movie
+    example: The Dark Knight
+  description:
+    type: string
+    nullable: true
+    example: When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.
+  release_date:
+    type: string
+    format: date
+    nullable: true
+    example: "2008-07-18"
+  director:
+    type: string
+    nullable: true
+    example: Christopher Nolan
+  genreIds:
+    type: array
+    items:
+      type: integer
+    example: [1, 4, 10]
+required:
+  - title
+

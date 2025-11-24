@@ -1,0 +1,24 @@
+type: object
+properties:
+  userName:
+    type: string
+    example: john_doe
+  email:
+    type: string
+    format: email
+    example: john@example.com
+  password:
+    type: string
+    format: password
+    minLength: 8
+    example: password123
+  role:
+    type: string
+    enum: [user, admin]
+    default: user
+    example: user
+required:
+  - userName
+  - email
+  - password
+

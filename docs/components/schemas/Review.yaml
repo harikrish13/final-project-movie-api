@@ -1,0 +1,56 @@
+type: object
+properties:
+  Id:
+    readOnly: true
+    type: integer
+    example: 1
+  User_ID:
+    type: integer
+    example: 2
+  Movie_ID:
+    type: integer
+    example: 1
+  Ratings:
+    type: number
+    format: float
+    nullable: true
+    minimum: 0
+    maximum: 10
+    example: 9.5
+  Title:
+    type: string
+    nullable: true
+    example: Masterpiece
+  Content:
+    type: string
+    nullable: true
+    example: One of the best superhero movies ever made. Heath Ledger's performance is phenomenal.
+  Created_at:
+    type: string
+    format: date-time
+    readOnly: true
+    example: "2024-01-15T10:30:00.000Z"
+  Updated_at:
+    type: string
+    format: date-time
+    readOnly: true
+    example: "2024-01-15T10:30:00.000Z"
+  User:
+    type: object
+    properties:
+      USER_ID:
+        type: integer
+        example: 2
+      UserName:
+        type: string
+        example: john_doe
+  Movie:
+    type: object
+    properties:
+      Id:
+        type: integer
+        example: 1
+      Title:
+        type: string
+        example: The Dark Knight
+

@@ -1,0 +1,105 @@
+get:
+  summary: List all reviews
+  description: |
+    Get a list of all reviews with optional filtering by movie ID or user ID.
+    
+    **Authentication:** Not required
+    **Authorization:** Not required
+  tags:
+    - Reviews
+  parameters:
+    - name: movieId
+      in: query
+      required: false
+      description: Filter reviews by movie ID
+      schema:
+        type: integer
+        example: 1
+    - name: userId
+      in: query
+      required: false
+      description: Filter reviews by user ID
+      schema:
+        type: integer
+        example: 2
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              reviews:
+                type: array
+                items:
+                  $ref: ../components/schemas/Review.yaml
+            required:
+              - reviews
+          example:
+            reviews:
+              - Id: 1
+                User_ID: 2
+                Movie_ID: 1
+                Ratings: 9.5
+                Title: Masterpiece
+                Content: One of the best superhero movies ever made.
+                Created_at: "2024-01-15T10:30:00.000Z"
+                Updated_at: "2024-01-15T10:30:00.000Z"
+                User:
+                  USER_ID: 2
+                  UserName: john_doe
+                Movie:
+                  Id: 1
+                  Title: The Dark Knight
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+post:
+  summary: Create a new review
+  description: |
+    Create a new review for a movie. **Requires authentication.**
+    
+    **Authentication:** Bearer token (JWT) required
+    **Authorization:** Any authenticated user
+  tags:
+    - Reviews
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/ReviewInput.yaml
+        example:
+          movieId: 1
+          ratings: 9.5
+          title: Masterpiece
+          content: One of the best superhero movies ever made. Heath Ledger's performance is phenomenal.
+  responses:
+    '201':
+      description: Review created successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Review.yaml
+          example:
+            Id: 1
+            User_ID: 2
+            Movie_ID: 1
+            Ratings: 9.5
+            Title: Masterpiece
+            Content: One of the best superhero movies ever made. Heath Ledger's performance is phenomenal.
+            Created_at: "2024-01-15T10:30:00.000Z"
+            Updated_at: "2024-01-15T10:30:00.000Z"
+            User:
+              USER_ID: 2
+              UserName: john_doe
+            Movie:
+              Id: 1
+              Title: The Dark Knight
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '401':
+      $ref: ../components/responses/Unauthorized.yaml
+

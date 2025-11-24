@@ -1,0 +1,46 @@
+post:
+  summary: Sign up a new user
+  description: |
+    Register a new user account. No authentication required.
+    
+    **Authentication:** Not required
+    **Authorization:** Not required
+  tags:
+    - Authentication
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/SignUpInput.yaml
+        example:
+          userName: john_doe
+          email: john@example.com
+          password: password123
+          role: user
+  responses:
+    '201':
+      description: User created successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: New user Created with id 1
+          example:
+            message: New user Created with id 1
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '409':
+      description: Conflict - Email already exists
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Email has already been used
+

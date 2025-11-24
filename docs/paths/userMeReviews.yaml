@@ -1,0 +1,39 @@
+get:
+  summary: Get current user's reviews
+  description: |
+    Get all reviews created by the authenticated user.
+    
+    **Authentication:** Bearer token (JWT) required
+    **Authorization:** Any authenticated user
+  tags:
+    - Users
+  security:
+    - bearerAuth: []
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              reviews:
+                type: array
+                items:
+                  $ref: ../components/schemas/Review.yaml
+          example:
+            reviews:
+              - Id: 1
+                User_ID: 2
+                Movie_ID: 1
+                Ratings: 9.5
+                Title: Masterpiece
+                Content: One of the best superhero movies ever made.
+                Created_at: "2024-01-15T10:30:00.000Z"
+                Updated_at: "2024-01-15T10:30:00.000Z"
+                Movie:
+                  Id: 1
+                  Title: The Dark Knight
+    '401':
+      $ref: ../components/responses/Unauthorized.yaml
+

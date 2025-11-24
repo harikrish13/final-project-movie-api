@@ -1,0 +1,75 @@
+get:
+  summary: List all genres
+  description: |
+    Get a list of all available genres.
+    
+    **Authentication:** Not required
+    **Authorization:** Not required
+  tags:
+    - Genres
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              genres:
+                type: array
+                items:
+                  $ref: ../components/schemas/Genre.yaml
+            required:
+              - genres
+          example:
+            genres:
+              - Id: 1
+                Name: Action
+              - Id: 2
+                Name: Comedy
+              - Id: 3
+                Name: Drama
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+post:
+  summary: Create a new genre
+  description: |
+    Create a new genre. **Requires authentication and admin role.**
+    
+    **Authentication:** Bearer token (JWT) required
+    **Authorization:** Admin role required
+  tags:
+    - Genres
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+              example: Mystery
+          required:
+            - name
+        example:
+          name: Mystery
+  responses:
+    '201':
+      description: Genre created successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Genre.yaml
+          example:
+            Id: 11
+            Name: Mystery
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '401':
+      $ref: ../components/responses/Unauthorized.yaml
+    '403':
+      $ref: ../components/responses/Forbidden.yaml
+

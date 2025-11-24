@@ -1,0 +1,1361 @@
+openapi: 3.1.0
+info:
+  title: Movie API
+  version: 1.0.0
+  description: A RESTful API for managing movies, reviews, genres, and users
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: https://your-production-url.com
+    description: Production server
+tags:
+  - name: Authentication
+    description: Authentication endpoints
+  - name: Users
+    description: User-related endpoints
+  - name: Movies
+    description: Movie-related endpoints
+  - name: Genres
+    description: Genre-related endpoints
+  - name: Reviews
+    description: Review-related endpoints
+  - name: Health
+    description: Health check endpoint
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Server is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  message:
+                    type: string
+                    example: Server is running
+  /api/movies:
+    get:
+      summary: List all movies
+      description: |
+        Get a list of all movies with optional filtering by genre and search.
+
+        **Authentication:** Not required
+        **Authorization:** Not required
+      tags:
+        - Movies
+      parameters:
+        - name: genre
+          in: query
+          required: false
+          description: Filter movies by genre ID
+          schema:
+            type: integer
+            example: 1
+        - name: search
+          in: query
+          required: false
+          description: Search movies by title, description, or director
+          schema:
+            type: string
+            example: dark knight
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieListResponse'
+              example:
+                movies:
+                  - Id: 1
+                    Title: The Dark Knight
+                    Description: When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.
+                    Release_date: '2008-07-18T00:00:00.000Z'
+                    Director: Christopher Nolan
+                    MovieGenres:
+                      - Genre:
+                          Id: 1
+                          Name: Action
+                      - Genre:
+                          Id: 4
+                          Name: Thriller
+                    _count:
+                      Reviews: 5
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    post:
+      summary: Create a new movie
+      description: |
+        Create a new movie. **Requires authentication and admin role.**
+
+        **Authentication:** Bearer token (JWT) required
+        **Authorization:** Admin role required
+      tags:
+        - Movies
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieInput'
+            example:
+              title: The Dark Knight
+              description: When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.
+              release_date: '2008-07-18'
+              director: Christopher Nolan
+              genreIds:
+                - 1
+                - 4
+                - 10
+      responses:
+        '201':
+          description: Movie created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+              example:
+                Id: 11
+                Title: The Dark Knight
+                Description: When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.
+                Release_date: '2008-07-18T00:00:00.000Z'
+                Director: Christopher Nolan
+                MovieGenres:
+                  - Genre:
+                      Id: 1
+                      Name: Action
+                  - Genre:
+                      Id: 4
+                      Name: Thriller
+                  - Genre:
+                      Id: 10
+                      Name: Crime
+                _count:
+                  Reviews: 0
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/movies/{id}:
+    get:
+      summary: Get a single movie by ID
+      description: |
+        Get detailed information about a specific movie including genres and review count.
+
+        **Authentication:** Not required
+        **Authorization:** Not required
+      tags:
+        - Movies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The movie ID
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+              example:
+                Id: 1
+                Title: The Dark Knight
+                Description: When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.
+                Release_date: '2008-07-18T00:00:00.000Z'
+                Director: Christopher Nolan
+                MovieGenres:
+                  - Genre:
+                      Id: 1
+                      Name: Action
+                  - Genre:
+                      Id: 4
+                      Name: Thriller
+                  - Genre:
+                      Id: 10
+                      Name: Crime
+                _count:
+                  Reviews: 5
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update a movie by ID
+      description: |
+        Update an existing movie. **Requires authentication and admin role.**
+
+        **Authentication:** Bearer token (JWT) required
+        **Authorization:** Admin role required
+      tags:
+        - Movies
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The movie ID
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieInput'
+            example:
+              title: The Dark Knight Rises
+              description: Updated description for the movie
+              release_date: '2012-07-20'
+              director: Christopher Nolan
+              genreIds:
+                - 1
+                - 4
+                - 10
+      responses:
+        '200':
+          description: Movie updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete a movie by ID
+      description: |
+        Delete a movie. **Requires authentication and admin role.**
+
+        **Authentication:** Bearer token (JWT) required
+        **Authorization:** Admin role required
+      tags:
+        - Movies
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The movie ID
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Movie deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Movie deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/reviews:
+    get:
+      summary: List all reviews
+      description: |
+        Get a list of all reviews with optional filtering by movie ID or user ID.
+
+        **Authentication:** Not required
+        **Authorization:** Not required
+      tags:
+        - Reviews
+      parameters:
+        - name: movieId
+          in: query
+          required: false
+          description: Filter reviews by movie ID
+          schema:
+            type: integer
+            example: 1
+        - name: userId
+          in: query
+          required: false
+          description: Filter reviews by user ID
+          schema:
+            type: integer
+            example: 2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reviews:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Review'
+                required:
+                  - reviews
+              example:
+                reviews:
+                  - Id: 1
+                    User_ID: 2
+                    Movie_ID: 1
+                    Ratings: 9.5
+                    Title: Masterpiece
+                    Content: One of the best superhero movies ever made.
+                    Created_at: '2024-01-15T10:30:00.000Z'
+                    Updated_at: '2024-01-15T10:30:00.000Z'
+                    User:
+                      USER_ID: 2
+                      UserName: john_doe
+                    Movie:
+                      Id: 1
+                      Title: The Dark Knight
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    post:
+      summary: Create a new review
+      description: |
+        Create a new review for a movie. **Requires authentication.**
+
+        **Authentication:** Bearer token (JWT) required
+        **Authorization:** Any authenticated user
+      tags:
+        - Reviews
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewInput'
+            example:
+              movieId: 1
+              ratings: 9.5
+              title: Masterpiece
+              content: One of the best superhero movies ever made. Heath Ledger's performance is phenomenal.
+      responses:
+        '201':
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+              example:
+                Id: 1
+                User_ID: 2
+                Movie_ID: 1
+                Ratings: 9.5
+                Title: Masterpiece
+                Content: One of the best superhero movies ever made. Heath Ledger's performance is phenomenal.
+                Created_at: '2024-01-15T10:30:00.000Z'
+                Updated_at: '2024-01-15T10:30:00.000Z'
+                User:
+                  USER_ID: 2
+                  UserName: john_doe
+                Movie:
+                  Id: 1
+                  Title: The Dark Knight
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/reviews/{id}:
+    get:
+      summary: Get a single review by ID
+      description: |
+        Get detailed information about a specific review including user and movie details.
+
+        **Authentication:** Not required
+        **Authorization:** Not required
+      tags:
+        - Reviews
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The review ID
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update a review by ID
+      description: |
+        Update a review. **Requires authentication and ownership of the review.**
+
+        **Authentication:** Bearer token (JWT) required
+        **Authorization:** User must own the review
+      tags:
+        - Reviews
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The review ID
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ratings:
+                  type: number
+                  format: float
+                  nullable: true
+                  minimum: 0
+                  maximum: 10
+                  example: 9.5
+                title:
+                  type: string
+                  nullable: true
+                  example: Updated Review Title
+                content:
+                  type: string
+                  nullable: true
+                  example: Updated review content
+            example:
+              ratings: 10
+              title: Even Better After Rewatch
+              content: This movie gets better every time I watch it. Truly a masterpiece.
+      responses:
+        '200':
+          description: Review updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete a review by ID
+      description: |
+        Delete a review. **Requires authentication and ownership of the review.**
+
+        **Authentication:** Bearer token (JWT) required
+        **Authorization:** User must own the review
+      tags:
+        - Reviews
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The review ID
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Review deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Review deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/genres:
+    get:
+      summary: List all genres
+      description: |
+        Get a list of all available genres.
+
+        **Authentication:** Not required
+        **Authorization:** Not required
+      tags:
+        - Genres
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  genres:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Genre'
+                required:
+                  - genres
+              example:
+                genres:
+                  - Id: 1
+                    Name: Action
+                  - Id: 2
+                    Name: Comedy
+                  - Id: 3
+                    Name: Drama
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    post:
+      summary: Create a new genre
+      description: |
+        Create a new genre. **Requires authentication and admin role.**
+
+        **Authentication:** Bearer token (JWT) required
+        **Authorization:** Admin role required
+      tags:
+        - Genres
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Mystery
+              required:
+                - name
+            example:
+              name: Mystery
+      responses:
+        '201':
+          description: Genre created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Genre'
+              example:
+                Id: 11
+                Name: Mystery
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/genres/{id}:
+    get:
+      summary: Get a single genre by ID
+      description: |
+        Get information about a specific genre.
+
+        **Authentication:** Not required
+        **Authorization:** Not required
+      tags:
+        - Genres
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The genre ID
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Genre'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update a genre by ID
+      description: |
+        Update a genre. **Requires authentication and admin role.**
+
+        **Authentication:** Bearer token (JWT) required
+        **Authorization:** Admin role required
+      tags:
+        - Genres
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The genre ID
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Updated Genre Name
+              required:
+                - name
+            example:
+              name: Action-Adventure
+      responses:
+        '200':
+          description: Genre updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Genre'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete a genre by ID
+      description: |
+        Delete a genre. **Requires authentication and admin role.**
+
+        **Authentication:** Bearer token (JWT) required
+        **Authorization:** Admin role required
+      tags:
+        - Genres
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The genre ID
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Genre deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Genre deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/auth/signup:
+    post:
+      summary: Sign up a new user
+      description: |
+        Register a new user account. No authentication required.
+
+        **Authentication:** Not required
+        **Authorization:** Not required
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpInput'
+            example:
+              userName: john_doe
+              email: john@example.com
+              password: password123
+              role: user
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: New user Created with id 1
+              example:
+                message: New user Created with id 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Conflict - Email already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email has already been used
+  /api/auth/login:
+    post:
+      summary: Log in a user
+      description: |
+        Authenticate a user and receive a JWT access token. No authentication required.
+
+        **Authentication:** Not required
+        **Authorization:** Not required
+
+        Returns a JWT token that should be used in the Authorization header for protected endpoints:
+        `Authorization: Bearer <token>`
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+            example:
+              email: john@example.com
+              password: password123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              example:
+                accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNjEwNTY3ODAwLCJleHAiOjE2MTExNzI2MDB9.example_signature
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid email or password
+  /api/users:
+    get:
+      summary: List all users (Admin only)
+      description: |
+        Get a list of all users. **Requires authentication and admin role.**
+
+        **Authentication:** Bearer token (JWT) required
+        **Authorization:** Admin role required
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+              example:
+                users:
+                  - USER_ID: 1
+                    UserName: admin
+                    Email: admin@movieapi.com
+                    Role: admin
+                    Created_at: '2024-01-15T10:30:00.000Z'
+                  - USER_ID: 2
+                    UserName: john_doe
+                    Email: john@example.com
+                    Role: user
+                    Created_at: '2024-01-15T10:30:00.000Z'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/users/me:
+    get:
+      summary: Get current user profile
+      description: |
+        Get the authenticated user's profile information.
+
+        **Authentication:** Bearer token (JWT) required
+        **Authorization:** Any authenticated user
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              example:
+                USER_ID: 2
+                UserName: john_doe
+                Email: john@example.com
+                Role: user
+                Created_at: '2024-01-15T10:30:00.000Z'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      summary: Update current user profile
+      description: |
+        Update the authenticated user's profile. At least one field (userName, email, or password) must be provided.
+
+        **Authentication:** Bearer token (JWT) required
+        **Authorization:** Any authenticated user (can only update their own profile)
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                  example: updated_username
+                email:
+                  type: string
+                  format: email
+                  example: updated@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: newpassword123
+            example:
+              userName: john_doe_updated
+              email: john.updated@example.com
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Conflict - Email already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email is not unique
+    delete:
+      summary: Delete current user account
+      description: |
+        Delete the authenticated user's account.
+
+        **Authentication:** Bearer token (JWT) required
+        **Authorization:** Any authenticated user (can only delete their own account)
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/users/me/reviews:
+    get:
+      summary: Get current user's reviews
+      description: |
+        Get all reviews created by the authenticated user.
+
+        **Authentication:** Bearer token (JWT) required
+        **Authorization:** Any authenticated user
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reviews:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Review'
+              example:
+                reviews:
+                  - Id: 1
+                    User_ID: 2
+                    Movie_ID: 1
+                    Ratings: 9.5
+                    Title: Masterpiece
+                    Content: One of the best superhero movies ever made.
+                    Created_at: '2024-01-15T10:30:00.000Z'
+                    Updated_at: '2024-01-15T10:30:00.000Z'
+                    Movie:
+                      Id: 1
+                      Title: The Dark Knight
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/users/{id}/role:
+    patch:
+      summary: Update user role (Admin only)
+      description: |
+        Update a user's role. **Requires authentication and admin role.**
+
+        **Authentication:** Bearer token (JWT) required
+        **Authorization:** Admin role required
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The user ID
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum:
+                    - user
+                    - admin
+                  example: admin
+              required:
+                - role
+            example:
+              role: admin
+      responses:
+        '200':
+          description: User role updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              example:
+                USER_ID: 2
+                UserName: john_doe
+                Email: john@example.com
+                Role: admin
+                Created_at: '2024-01-15T10:30:00.000Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /api/auth/login endpoint
+  schemas:
+    Movie:
+      type: object
+      properties:
+        Id:
+          readOnly: true
+          type: integer
+          example: 1
+        Title:
+          type: string
+          example: The Dark Knight
+        Description:
+          type: string
+          nullable: true
+          example: When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.
+        Release_date:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2008-07-18T00:00:00.000Z'
+        Director:
+          type: string
+          nullable: true
+          example: Christopher Nolan
+        MovieGenres:
+          type: array
+          items:
+            type: object
+            properties:
+              Genre:
+                type: object
+                properties:
+                  Id:
+                    type: integer
+                    example: 1
+                  Name:
+                    type: string
+                    example: Action
+        _count:
+          type: object
+          properties:
+            Reviews:
+              type: integer
+              example: 5
+      required:
+        - Title
+    MovieListResponse:
+      type: object
+      properties:
+        movies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Movie'
+      required:
+        - movies
+    ValidationError:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+          example:
+            - Email is required
+            - Email is not valid
+            - Password is required
+    MovieInput:
+      type: object
+      properties:
+        title:
+          type: string
+          description: The title of the movie
+          example: The Dark Knight
+        description:
+          type: string
+          nullable: true
+          example: When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.
+        release_date:
+          type: string
+          format: date
+          nullable: true
+          example: '2008-07-18'
+        director:
+          type: string
+          nullable: true
+          example: Christopher Nolan
+        genreIds:
+          type: array
+          items:
+            type: integer
+          example:
+            - 1
+            - 4
+            - 10
+      required:
+        - title
+    UnauthorizedError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Unauthorized. Authentication required.
+      required:
+        - error
+    ForbiddenError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Forbidden. Admin access required.
+      required:
+        - error
+    NotFoundError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Movie not found
+      required:
+        - error
+    Review:
+      type: object
+      properties:
+        Id:
+          readOnly: true
+          type: integer
+          example: 1
+        User_ID:
+          type: integer
+          example: 2
+        Movie_ID:
+          type: integer
+          example: 1
+        Ratings:
+          type: number
+          format: float
+          nullable: true
+          minimum: 0
+          maximum: 10
+          example: 9.5
+        Title:
+          type: string
+          nullable: true
+          example: Masterpiece
+        Content:
+          type: string
+          nullable: true
+          example: One of the best superhero movies ever made. Heath Ledger's performance is phenomenal.
+        Created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          example: '2024-01-15T10:30:00.000Z'
+        Updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          example: '2024-01-15T10:30:00.000Z'
+        User:
+          type: object
+          properties:
+            USER_ID:
+              type: integer
+              example: 2
+            UserName:
+              type: string
+              example: john_doe
+        Movie:
+          type: object
+          properties:
+            Id:
+              type: integer
+              example: 1
+            Title:
+              type: string
+              example: The Dark Knight
+    ReviewInput:
+      type: object
+      properties:
+        movieId:
+          type: integer
+          example: 1
+        ratings:
+          type: number
+          format: float
+          nullable: true
+          minimum: 0
+          maximum: 10
+          example: 9.5
+        title:
+          type: string
+          nullable: true
+          example: Masterpiece
+        content:
+          type: string
+          nullable: true
+          example: One of the best superhero movies ever made. Heath Ledger's performance is phenomenal.
+      required:
+        - movieId
+    Genre:
+      type: object
+      properties:
+        Id:
+          readOnly: true
+          type: integer
+          example: 1
+        Name:
+          type: string
+          unique: true
+          example: Action
+      required:
+        - Name
+    SignUpInput:
+      type: object
+      properties:
+        userName:
+          type: string
+          example: john_doe
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: password123
+        role:
+          type: string
+          enum:
+            - user
+            - admin
+          default: user
+          example: user
+      required:
+        - userName
+        - email
+        - password
+    LoginInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        password:
+          type: string
+          format: password
+          example: password123
+      required:
+        - email
+        - password
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      required:
+        - accessToken
+    User:
+      type: object
+      properties:
+        USER_ID:
+          readOnly: true
+          type: integer
+          example: 1
+        UserName:
+          type: string
+          example: john_doe
+        Email:
+          type: string
+          format: email
+          example: john@example.com
+        Role:
+          type: string
+          enum:
+            - user
+            - admin
+          example: user
+        Created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          example: '2024-01-15T10:30:00.000Z'
+      required:
+        - UserName
+        - Email
+  responses:
+    BadRequest:
+      description: Invalid input - Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+          example:
+            errors:
+              - Email is required
+              - Password must be at least 6 characters
+    Unauthorized:
+      description: Unauthorized - Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+    Forbidden:
+      description: Forbidden - Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ForbiddenError'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'

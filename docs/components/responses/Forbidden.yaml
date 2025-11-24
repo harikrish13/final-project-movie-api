@@ -1,0 +1,6 @@
+description: Forbidden - Insufficient permissions
+content:
+  application/json:
+    schema:
+      $ref: ../schemas/ForbiddenError.yaml
+

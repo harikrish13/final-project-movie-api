@@ -1,0 +1,57 @@
+openapi: 3.1.0
+info:
+  title: Movie API
+  version: 1.0.0
+  description: A RESTful API for managing movies, reviews, genres, and users
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: https://your-production-url.com
+    description: Production server
+tags:
+  - name: Authentication
+    description: Authentication endpoints
+  - name: Users
+    description: User-related endpoints
+  - name: Movies
+    description: Movie-related endpoints
+  - name: Genres
+    description: Genre-related endpoints
+  - name: Reviews
+    description: Review-related endpoints
+  - name: Health
+    description: Health check endpoint
+paths:
+  /health:
+    $ref: paths/health.yaml
+  /api/movies:
+    $ref: paths/movies.yaml
+  /api/movies/{id}:
+    $ref: paths/movieById.yaml
+  /api/reviews:
+    $ref: paths/reviews.yaml
+  /api/reviews/{id}:
+    $ref: paths/reviewById.yaml
+  /api/genres:
+    $ref: paths/genres.yaml
+  /api/genres/{id}:
+    $ref: paths/genreById.yaml
+  /api/auth/signup:
+    $ref: paths/auth.yaml
+  /api/auth/login:
+    $ref: paths/login.yaml
+  /api/users:
+    $ref: paths/users.yaml
+  /api/users/me:
+    $ref: paths/userMe.yaml
+  /api/users/me/reviews:
+    $ref: paths/userMeReviews.yaml
+  /api/users/{id}/role:
+    $ref: paths/userRole.yaml
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /api/auth/login endpoint

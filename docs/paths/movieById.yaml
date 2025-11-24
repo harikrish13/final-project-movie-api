@@ -1,0 +1,131 @@
+get:
+  summary: Get a single movie by ID
+  description: |
+    Get detailed information about a specific movie including genres and review count.
+    
+    **Authentication:** Not required
+    **Authorization:** Not required
+  tags:
+    - Movies
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The movie ID
+      schema:
+        type: integer
+        example: 1
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Movie.yaml
+          example:
+            Id: 1
+            Title: The Dark Knight
+            Description: When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.
+            Release_date: "2008-07-18T00:00:00.000Z"
+            Director: Christopher Nolan
+            MovieGenres:
+              - Genre:
+                  Id: 1
+                  Name: Action
+              - Genre:
+                  Id: 4
+                  Name: Thriller
+              - Genre:
+                  Id: 10
+                  Name: Crime
+            _count:
+              Reviews: 5
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '404':
+      $ref: ../components/responses/NotFound.yaml
+put:
+  summary: Update a movie by ID
+  description: |
+    Update an existing movie. **Requires authentication and admin role.**
+    
+    **Authentication:** Bearer token (JWT) required
+    **Authorization:** Admin role required
+  tags:
+    - Movies
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The movie ID
+      schema:
+        type: integer
+        example: 1
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/MovieInput.yaml
+        example:
+          title: The Dark Knight Rises
+          description: Updated description for the movie
+          release_date: "2012-07-20"
+          director: Christopher Nolan
+          genreIds: [1, 4, 10]
+  responses:
+    '200':
+      description: Movie updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Movie.yaml
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '401':
+      $ref: ../components/responses/Unauthorized.yaml
+    '403':
+      $ref: ../components/responses/Forbidden.yaml
+    '404':
+      $ref: ../components/responses/NotFound.yaml
+delete:
+  summary: Delete a movie by ID
+  description: |
+    Delete a movie. **Requires authentication and admin role.**
+    
+    **Authentication:** Bearer token (JWT) required
+    **Authorization:** Admin role required
+  tags:
+    - Movies
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The movie ID
+      schema:
+        type: integer
+        example: 1
+  responses:
+    '200':
+      description: Movie deleted successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Movie deleted successfully
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '401':
+      $ref: ../components/responses/Unauthorized.yaml
+    '403':
+      $ref: ../components/responses/Forbidden.yaml
+    '404':
+      $ref: ../components/responses/NotFound.yaml
+

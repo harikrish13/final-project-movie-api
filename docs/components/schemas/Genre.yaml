@@ -1,0 +1,13 @@
+type: object
+properties:
+  Id:
+    readOnly: true
+    type: integer
+    example: 1
+  Name:
+    type: string
+    unique: true
+    example: Action
+required:
+  - Name
+

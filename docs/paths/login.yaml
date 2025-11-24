@@ -1,0 +1,43 @@
+post:
+  summary: Log in a user
+  description: |
+    Authenticate a user and receive a JWT access token. No authentication required.
+    
+    **Authentication:** Not required
+    **Authorization:** Not required
+    
+    Returns a JWT token that should be used in the Authorization header for protected endpoints:
+    `Authorization: Bearer <token>`
+  tags:
+    - Authentication
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/LoginInput.yaml
+        example:
+          email: john@example.com
+          password: password123
+  responses:
+    '200':
+      description: Login successful
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/LoginResponse.yaml
+          example:
+            accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNjEwNTY3ODAwLCJleHAiOjE2MTExNzI2MDB9.example_signature
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '401':
+      description: Invalid credentials
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Invalid email or password
+
