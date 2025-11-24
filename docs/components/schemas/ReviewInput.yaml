@@ -1,0 +1,23 @@
+type: object
+properties:
+  movieId:
+    type: integer
+    example: 1
+  ratings:
+    type: number
+    format: float
+    nullable: true
+    minimum: 0
+    maximum: 10
+    example: 9.5
+  title:
+    type: string
+    nullable: true
+    example: Masterpiece
+  content:
+    type: string
+    nullable: true
+    example: One of the best superhero movies ever made. Heath Ledger's performance is phenomenal.
+required:
+  - movieId
+

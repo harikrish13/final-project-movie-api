@@ -1,0 +1,8 @@
+description: Invalid input - Validation failed
+content:
+  application/json:
+    schema:
+      $ref: ../schemas/ValidationError.yaml
+    example:
+      errors: ["Email is required", "Password must be at least 6 characters"]
+

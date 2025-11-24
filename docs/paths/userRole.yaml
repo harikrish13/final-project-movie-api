@@ -1,0 +1,56 @@
+patch:
+  summary: Update user role (Admin only)
+  description: |
+    Update a user's role. **Requires authentication and admin role.**
+    
+    **Authentication:** Bearer token (JWT) required
+    **Authorization:** Admin role required
+  tags:
+    - Users
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The user ID
+      schema:
+        type: integer
+        example: 1
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            role:
+              type: string
+              enum: [user, admin]
+              example: admin
+          required:
+            - role
+        example:
+          role: admin
+  responses:
+    '200':
+      description: User role updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/User.yaml
+          example:
+            USER_ID: 2
+            UserName: john_doe
+            Email: john@example.com
+            Role: admin
+            Created_at: "2024-01-15T10:30:00.000Z"
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '401':
+      $ref: ../components/responses/Unauthorized.yaml
+    '403':
+      $ref: ../components/responses/Forbidden.yaml
+    '404':
+      $ref: ../components/responses/NotFound.yaml
+

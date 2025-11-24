@@ -1,0 +1,8 @@
+type: object
+properties:
+  errors:
+    type: array
+    items:
+      type: string
+    example: ["Email is required", "Email is not valid", "Password is required"]
+

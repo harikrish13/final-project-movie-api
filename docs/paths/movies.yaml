@@ -1,0 +1,104 @@
+get:
+  summary: List all movies
+  description: |
+    Get a list of all movies with optional filtering by genre and search.
+    
+    **Authentication:** Not required
+    **Authorization:** Not required
+  tags:
+    - Movies
+  parameters:
+    - name: genre
+      in: query
+      required: false
+      description: Filter movies by genre ID
+      schema:
+        type: integer
+        example: 1
+    - name: search
+      in: query
+      required: false
+      description: Search movies by title, description, or director
+      schema:
+        type: string
+        example: dark knight
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/MovieListResponse.yaml
+          example:
+            movies:
+              - Id: 1
+                Title: The Dark Knight
+                Description: When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.
+                Release_date: "2008-07-18T00:00:00.000Z"
+                Director: Christopher Nolan
+                MovieGenres:
+                  - Genre:
+                      Id: 1
+                      Name: Action
+                  - Genre:
+                      Id: 4
+                      Name: Thriller
+                _count:
+                  Reviews: 5
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+post:
+  summary: Create a new movie
+  description: |
+    Create a new movie. **Requires authentication and admin role.**
+    
+    **Authentication:** Bearer token (JWT) required
+    **Authorization:** Admin role required
+  tags:
+    - Movies
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/MovieInput.yaml
+        example:
+          title: The Dark Knight
+          description: When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.
+          release_date: "2008-07-18"
+          director: Christopher Nolan
+          genreIds: [1, 4, 10]
+  responses:
+    '201':
+      description: Movie created successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Movie.yaml
+          example:
+            Id: 11
+            Title: The Dark Knight
+            Description: When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.
+            Release_date: "2008-07-18T00:00:00.000Z"
+            Director: Christopher Nolan
+            MovieGenres:
+              - Genre:
+                  Id: 1
+                  Name: Action
+              - Genre:
+                  Id: 4
+                  Name: Thriller
+              - Genre:
+                  Id: 10
+                  Name: Crime
+            _count:
+              Reviews: 0
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '401':
+      $ref: ../components/responses/Unauthorized.yaml
+    '403':
+      $ref: ../components/responses/Forbidden.yaml
+

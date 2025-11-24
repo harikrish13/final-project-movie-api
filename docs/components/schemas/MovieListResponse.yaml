@@ -1,0 +1,9 @@
+type: object
+properties:
+  movies:
+    type: array
+    items:
+      $ref: ./Movie.yaml
+required:
+  - movies
+

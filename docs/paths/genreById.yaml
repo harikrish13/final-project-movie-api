@@ -1,0 +1,115 @@
+get:
+  summary: Get a single genre by ID
+  description: |
+    Get information about a specific genre.
+    
+    **Authentication:** Not required
+    **Authorization:** Not required
+  tags:
+    - Genres
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The genre ID
+      schema:
+        type: integer
+        example: 1
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Genre.yaml
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '404':
+      $ref: ../components/responses/NotFound.yaml
+put:
+  summary: Update a genre by ID
+  description: |
+    Update a genre. **Requires authentication and admin role.**
+    
+    **Authentication:** Bearer token (JWT) required
+    **Authorization:** Admin role required
+  tags:
+    - Genres
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The genre ID
+      schema:
+        type: integer
+        example: 1
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+              example: Updated Genre Name
+          required:
+            - name
+        example:
+          name: Action-Adventure
+  responses:
+    '200':
+      description: Genre updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Genre.yaml
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '401':
+      $ref: ../components/responses/Unauthorized.yaml
+    '403':
+      $ref: ../components/responses/Forbidden.yaml
+    '404':
+      $ref: ../components/responses/NotFound.yaml
+delete:
+  summary: Delete a genre by ID
+  description: |
+    Delete a genre. **Requires authentication and admin role.**
+    
+    **Authentication:** Bearer token (JWT) required
+    **Authorization:** Admin role required
+  tags:
+    - Genres
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The genre ID
+      schema:
+        type: integer
+        example: 1
+  responses:
+    '200':
+      description: Genre deleted successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Genre deleted successfully
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '401':
+      $ref: ../components/responses/Unauthorized.yaml
+    '403':
+      $ref: ../components/responses/Forbidden.yaml
+    '404':
+      $ref: ../components/responses/NotFound.yaml
+
